@@ -82,3 +82,46 @@ export async function askLLMForToolCall(userInput) {
     throw new Error("Failed to parse LLM tool call JSON: " + e.message);
   }
 }
+
+export async function callLLMWithHistory(history, toolResult) {
+  // Create a prompt based on the conversation so far
+  let prompt = `You are an intelligent database assistant. Here are the tools you can use and example arguments:
+   {"tool": "list_tables", "arguments": {}},
+   {"tool": "describe_table", "arguments": {"table_name": "customers"}},
+   {"tool": "read_query", "arguments": {"query": "SELECT * FROM customers LIMIT 10"}}
+
+   Any SQL you write must be in SQL Server notation, otherwise we will encounter errors.
+
+    Based on the chat history and any tool results, decide what to do next.
+    You can ONLY respond with a json message of the following formats:
+    - Use a tool: respond with {"type": "tool", "toolCall": {"tool": "list_tables", "arguments": {}}}
+    - Or answer the user directly: respond with {"type": "response", "content": "Here's the answer..."}
+
+    Here is the chat history:\n`;
+
+  for (const msg of history) {
+    prompt += `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}\n`;
+  }
+
+  if (toolResult) {
+    prompt += `\nTool Result: ${JSON.stringify(toolResult)}\n`;
+  }
+
+  prompt += `\nWhat should we do next?\n`;
+
+  // Call the LLM (your existing function)
+  const llmRawResponse = await callLLM(prompt);
+
+  try {
+    const action = JSON.parse(llmRawResponse.trim());
+    if (
+      (action.type === "tool" && action.toolCall && action.toolCall.tool) ||
+      (action.type === "response" && typeof action.content === "string")
+    ) {
+      return action;
+    }
+    throw new Error("Invalid structure");
+  } catch (err) {
+    throw new Error("LLM did not return a valid JSON object: " + llmRawResponse);
+  }
+}

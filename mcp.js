@@ -14,6 +14,8 @@ const mcpProcess = spawn('C:\\Users\\LH24481\\AppData\\Roaming\\nvm\\v22.12.0\\n
 let requestId = 1;
 
 export function sendRequestToMCP(toolCall) {
+    console.log("Using tool: " + toolCall.tool + " with arguments: " + JSON.stringify(toolCall.arguments));
+
     const request = {
         jsonrpc: "2.0",
         method: "tools/call",

@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { runToolFromUserInput } from './agent.js';
+import { runLLMLoop } from './agent.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -17,7 +17,7 @@ app.post('/chat', async (req, res) => {
   const userInput = req.body.message;
 
   try {
-    const response = await runToolFromUserInput(userInput);
+    const response = await runLLMLoop(userInput);
     res.json({ response });
   } catch (err) {
     console.error("Failed to handle chat input:", err);

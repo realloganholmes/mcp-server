@@ -1,5 +1,5 @@
 import { validateTool } from './helpers.js';
-import { askLLMForToolCall, askLLMToGenerateAnswer } from './llm_functions.js';
+import { askLLMForToolCall, askLLMToGenerateAnswer, callLLMWithHistory } from './llm_functions.js';
 import { sendRequestToMCP } from './mcp.js';
 
 export async function runToolFromUserInput(userInput) {
@@ -24,4 +24,24 @@ export async function runToolFromUserInput(userInput) {
   }
 }
 
-runToolFromUserInput("What tables do you have?");
+export async function runLLMLoop(userInput) {
+  const history = [{ role: "user", content: userInput }];
+  let toolResult = null;
+
+  for (let i = 0; i < 5; i++) {
+    const llmAction = await callLLMWithHistory(history, toolResult);
+
+    if (llmAction.type === "tool") {
+      const response = await sendRequestToMCP(llmAction.toolCall);
+      toolResult = response;
+      history.push({
+        role: "assistant",
+        content: `Used tool: ${llmAction.toolCall.tool}. Result: ${JSON.stringify(response)}`
+      });
+    } else if (llmAction.type === "response") {
+      return llmAction.content;
+    }
+  }
+
+  return "I'm not able to complete this request after several steps.";
+}
