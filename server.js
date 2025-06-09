@@ -28,3 +28,26 @@ app.post('/chat', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
 });
+
+const clients = [];
+
+app.get('/events', (req, res) => {
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+  });
+  res.flushHeaders();
+
+  clients.push(res);
+
+  req.on('close', () => {
+    const index = clients.indexOf(res);
+    if (index !== -1) clients.splice(index, 1);
+  });
+});
+
+export function sendProgressToClients(message) {
+  const eventString = `data: ${JSON.stringify(message)}\n\n`;
+  clients.forEach(client => client.write(eventString));
+}

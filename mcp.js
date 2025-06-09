@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import { sendProgressToClients } from './server.js';
 
 const mcpProcess = spawn('C:\\Users\\LH24481\\AppData\\Roaming\\nvm\\v22.12.0\\node.exe', [
     'C:\\Users\\LH24481\\Repos\\mcp-sql-agent\\node_modules\\@executeautomation\\database-server\\dist\\src\\index.js',
@@ -14,7 +15,9 @@ const mcpProcess = spawn('C:\\Users\\LH24481\\AppData\\Roaming\\nvm\\v22.12.0\\n
 let requestId = 1;
 
 export function sendRequestToMCP(toolCall) {
-    console.log("Using tool: " + toolCall.tool + " with arguments: " + JSON.stringify(toolCall.arguments));
+    const message = `Using tool: ${toolCall.tool} with arguments: ${JSON.stringify(toolCall.arguments)}`;
+    console.log(message);
+    sendProgressToClients({ message });
 
     const request = {
         jsonrpc: "2.0",

@@ -77,27 +77,33 @@ export async function askLLMForToolCall(userInput) {
 
   try {
     const parsed = JSON.parse(llmResponse.trim());
-    return parsed; // { tool: string, arguments: object }
+    return parsed;
   } catch (e) {
     throw new Error("Failed to parse LLM tool call JSON: " + e.message);
   }
 }
 
-export async function callLLMWithHistory(history, toolResult) {
-  // Create a prompt based on the conversation so far
+export async function callLLMWithHistory(history, fullChatHistory, toolResult) {
   let prompt = `You are an intelligent database assistant. Here are the tools you can use and example arguments:
    {"tool": "list_tables", "arguments": {}},
    {"tool": "describe_table", "arguments": {"table_name": "customers"}},
    {"tool": "read_query", "arguments": {"query": "SELECT * FROM customers LIMIT 10"}}
 
-   Any SQL you write must be in SQL Server notation, otherwise we will encounter errors.
+   As a smart and efficient assistant, you always research table names and schemas before writing queries in order to avoid mistakes. Any SQL you write must be in SQL Server notation, otherwise we will encounter errors.
 
-    Based on the chat history and any tool results, decide what to do next.
+    Based on the chat history and any tool results, decide what to do next. Only use tools if they are needed to address the users query, otherwise if you have enough information to respond from the history, just respond.
+    
     You can ONLY respond with a json message of the following formats:
     - Use a tool: respond with {"type": "tool", "toolCall": {"tool": "list_tables", "arguments": {}}}
     - Or answer the user directly: respond with {"type": "response", "content": "Here's the answer..."}
 
     Here is the chat history:\n`;
+
+  for (const msg of fullChatHistory) {
+    prompt += `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}\n`;
+  }
+
+  prompt += `\nThe previous steps you have taken are as follows:\n`;
 
   for (const msg of history) {
     prompt += `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}\n`;
@@ -109,7 +115,8 @@ export async function callLLMWithHistory(history, toolResult) {
 
   prompt += `\nWhat should we do next?\n`;
 
-  // Call the LLM (your existing function)
+  console.log(prompt);
+
   const llmRawResponse = await callLLM(prompt);
 
   try {

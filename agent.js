@@ -24,12 +24,15 @@ export async function runToolFromUserInput(userInput) {
   }
 }
 
+let totalChatHistory = []
+
 export async function runLLMLoop(userInput) {
-  const history = [{ role: "user", content: userInput }];
+  const history = [];
+  totalChatHistory.push({ role: "user", content: userInput });
   let toolResult = null;
 
   for (let i = 0; i < 5; i++) {
-    const llmAction = await callLLMWithHistory(history, toolResult);
+    const llmAction = await callLLMWithHistory(history, totalChatHistory, toolResult);
 
     if (llmAction.type === "tool") {
       const response = await sendRequestToMCP(llmAction.toolCall);
@@ -39,6 +42,7 @@ export async function runLLMLoop(userInput) {
         content: `Used tool: ${llmAction.toolCall.tool}. Result: ${JSON.stringify(response)}`
       });
     } else if (llmAction.type === "response") {
+      totalChatHistory.push({ role: "assistant", content: llmAction.content});
       return llmAction.content;
     }
   }

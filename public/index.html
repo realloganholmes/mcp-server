@@ -5,26 +5,89 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SQL Agent Chat</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    #chat { max-width: 600px; margin: auto; }
-    .message { margin: 10px 0; }
-    .user { text-align: right; }
-    .agent { text-align: left; color: blue; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    #chat {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .message {
+      margin: 10px 0;
+      line-height: 1.4;
+    }
+
+    .user {
+      text-align: right;
+      color: #333;
+    }
+
+    .agent {
+      text-align: left;
+      color: #004080;
+    }
+
+    .progress {
+      text-align: left;
+      color: #666;
+      font-style: italic;
+    }
+
+    #input-container {
+      max-width: 700px;
+      margin: 20px auto 0;
+      display: flex;
+      gap: 10px;
+    }
+
+    #input {
+      flex: 1;
+      padding: 10px;
+      font-size: 1em;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 5px;
+      border: none;
+      background: #004080;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0066cc;
+    }
   </style>
 </head>
 <body>
   <div id="chat"></div>
-  <input type="text" id="input" placeholder="Ask something..." style="width: 80%;">
-  <button onclick="sendMessage()">Send</button>
+
+  <div id="input-container">
+    <input type="text" id="input" placeholder="Ask something...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
 
   <script>
+    const chat = document.getElementById('chat');
+
     async function sendMessage() {
       const input = document.getElementById('input');
-      const chat = document.getElementById('chat');
-
       const message = input.value.trim();
       if (!message) return;
 
+      // Show user message
       chat.innerHTML += `<div class="message user"><strong>You:</strong> ${message}</div>`;
       input.value = '';
 
@@ -43,6 +106,17 @@
 
       window.scrollTo(0, document.body.scrollHeight);
     }
+
+    // Progress updates via /events (SSE)
+    const eventSource = new EventSource('http://localhost:3000/events');
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.message) {
+        chat.innerHTML += `<div class="message progress">${data.message}</div>`;
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+    };
   </script>
 </body>
 </html>
