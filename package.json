@@ -1,0 +1,21 @@
+{
+  "name": "mcp-sql-agent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx database-server --engine mssql --connection \"Server=sql-sc-scwc-dev-eastus2.database.windows.net;Database=sqldb-scwc-dev;User Id=scwcLocalReadOnly;Password=AILogin4Log@nToPlay!;\""
+  },
+  "keywords": [],
+  "author": "",
+  "type": "module",
+  "license": "ISC",
+  "dependencies": {
+    "@executeautomation/database-server": "^1.1.0",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "axios": "^1.9.0",
+    "dotenv": "^16.5.0",
+    "node-fetch": "^3.3.2"
+  }
+}
