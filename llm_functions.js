@@ -115,8 +115,6 @@ export async function callLLMWithHistory(history, fullChatHistory, toolResult) {
 
   prompt += `\nWhat should we do next?\n`;
 
-  console.log(prompt);
-
   const llmRawResponse = await callLLM(prompt);
 
   try {
