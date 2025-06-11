@@ -32,58 +32,7 @@ async function callLLM(prompt) {
   return json.choices[0].message.content;
 }
 
-export async function askLLMToGenerateAnswer(userInput, toolCall, mcpResponse) {
-  const prompt = `
-    You are a helpful assistant. A user asked this question:
-    "${userInput}"
-
-    The system ran this tool: "${toolCall.tool}" with arguments: ${JSON.stringify(toolCall.arguments || {})}
-
-    The tool returned the following data:
-    ${JSON.stringify(mcpResponse.result || mcpResponse.error || mcpResponse, null, 2)}
-
-    Please provide a clear, concise, and friendly answer to the user based on this data.
-    `;
-
-  const answer = await callLLM(prompt);
-
-  return answer;
-}
-
-export async function askLLMForToolCall(userInput) {
-  const prompt = `
-
-    You are an AI assistant that can call the following tools with arguments for a SQL Server database:
-
-    - list_tables(): returns list of table names
-    - describe_table(table_name): returns details about a table
-    - read_query(query): runs a SQL query and returns results
-
-    Make sure to write any queries in SQL Server notation
-
-    User question: ${userInput}
-
-    Respond ONLY with a JSON object indicating if you would like to use a tool, or just respond:
-    {"use_tool": true, "tool": "list_tables", "arguments": {}}
-    or
-    {"use_tool": true, "tool": "describe_table", "arguments": {"table_name": "customers"}}
-    or
-    {"use_tool": true, "tool": "read_query", "arguments": {"query": "SELECT * FROM customers LIMIT 10"}}
-    or
-    {"use_tool": false, "answer": "<your response>"}
-    `;
-
-  const llmResponse = await callLLM(prompt);
-
-  try {
-    const parsed = JSON.parse(llmResponse.trim());
-    return parsed;
-  } catch (e) {
-    throw new Error("Failed to parse LLM tool call JSON: " + e.message);
-  }
-}
-
-export async function callLLMWithHistory(history, fullChatHistory, toolResult) {
+export default async function callLLMWithHistory(history, fullChatHistory, toolResult) {
   let prompt = `You are an intelligent database assistant. Here are the tools you can use and example arguments:
    {"tool": "list_tables", "arguments": {}},
    {"tool": "describe_table", "arguments": {"table_name": "customers"}},
