@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const mcpProcess = spawn('C:\\Users\\LH24481\\AppData\\Roaming\\nvm\\v22.12.0\\node.exe', [
-    'C:\\Users\\LH24481\\Repos\\mcp-sql-agent\\node_modules\\@executeautomation\\database-server\\dist\\src\\index.js',
+    'node_modules\\@executeautomation\\database-server\\dist\\src\\index.js',
     '--sqlserver',
     '--server', 'sql-sc-scwc-dev-eastus2.database.windows.net',
     '--database', 'sqldb-scwc-dev',

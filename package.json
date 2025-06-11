@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx database-server --engine mssql --connection \"Server=sql-sc-scwc-dev-eastus2.database.windows.net;Database=sqldb-scwc-dev;User Id=scwcLocalReadOnly;Password=AILogin4Log@nToPlay!;\""
+    "start": "node ./server/server.js"
   },
   "keywords": [],
   "author": "",
