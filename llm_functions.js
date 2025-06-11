@@ -9,7 +9,7 @@ const agent = new https.Agent({
 });
 
 async function callLLM(prompt) {
-  const response = await fetch('https://ai-model-proxy.aks-ur-prd-internal.8451.cloud/v1/chat/completions', {
+  const response = await fetch(process.env.LLM_URL, {
     method: 'POST',
     agent: agent,
     headers: {
@@ -17,7 +17,7 @@ async function callLLM(prompt) {
       'Authorization': 'Bearer ' + process.env.API_KEY
      },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: process.env.LLM_MODEL,
       messages: [
         {
           content: prompt
