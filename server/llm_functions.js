@@ -1,35 +1,23 @@
-import fetch from 'node-fetch';
-import https from 'https';
+import OpenAI from 'openai';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Ignores self signed cert errors.
-const agent = new https.Agent({
-  rejectUnauthorized: false,
+const openai = new OpenAI({
+  apiKey: process.env.API_KEY,
+  baseURL: process.env.LLM_URL,
 });
 
 async function callLLM(prompt) {
-  const response = await fetch(process.env.LLM_URL, {
-    method: 'POST',
-    agent: agent,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + process.env.API_KEY
-     },
-    body: JSON.stringify({
-      model: process.env.LLM_MODEL,
-      messages: [
-        {
-          content: prompt
-        }
-      ]
-    }),
-  });
-  if (!response.ok) {
-    throw new Error(`LLM request failed: ${response.statusText}`);
-  }
-  const json = await response.json();
-  return json.choices[0].message.content;
+  const chatCompletion = await openai.chat.completions.create({
+    model: process.env.LLM_MODEL,
+    messages: [
+      {
+        content: prompt
+      }
+    ]
+  })
+
+  return chatCompletion.choices[0].message.content;
 }
 
 export default async function callLLMWithHistory(history, fullChatHistory, toolResult) {
