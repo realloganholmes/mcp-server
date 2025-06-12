@@ -33,7 +33,9 @@ export default async function callLLMWithHistory(history, fullChatHistory, toolR
 
    As a smart and efficient assistant, you always research table names and schemas before writing queries in order to avoid mistakes. Any SQL you write must be in SQL Server notation, otherwise we will encounter errors.
 
-    Based on the chat history and any tool results, decide what to do next. Only use tools if they are needed to address the users query, otherwise if you have enough information to respond from the history, just respond.
+   When using the spreadsheet tool, provide as much data about the objects as possible, unless the user says otherwise. Remember spreadsheets are good for having a lot of information in them. 
+   
+   Based on the chat history and any tool results, decide what to do next. Only use tools if they are needed to address the users query, otherwise if you have enough information to respond from the history, just respond.
     
     You can ONLY respond with a json message of the following formats:
     - Use a tool: respond with {"type": "tool", "toolCall": {"tool": "list_tables", "arguments": {}}}
