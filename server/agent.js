@@ -14,9 +14,6 @@ export async function runLLMLoop(userInput) {
 
     if (llmAction.type === "tool") {
       console.log("Using " + llmAction.toolCall.tool)
-      if (llmAction.toolCall.tool === "create_spreadsheet") {
-        return useSpreadsheetTool(llmAction.toolCall.arguments);
-      }
 
       const response = await sendRequestToMCP(llmAction.toolCall);
 
@@ -27,7 +24,11 @@ export async function runLLMLoop(userInput) {
       });
     } else if (llmAction.type === "response") {
       totalChatHistory.push({ role: "assistant", content: llmAction.content});
-      return llmAction.content;
+      return llmAction;
+    } else if (llmAction.type === "spreadsheet") {
+      return useSpreadsheetTool(llmAction.arguments);
+    } else if (llmAction.type === "chart") {
+      return llmAction;
     }
   }
 
@@ -46,6 +47,7 @@ async function useSpreadsheetTool(args) {
     const buffer = await workbook.xlsx.writeBuffer();
 
     return {
+      type: "spreadsheet",
       status: "success",
       filename: args.filename || "report.xlsx",
       mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
