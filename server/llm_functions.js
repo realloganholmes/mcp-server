@@ -25,6 +25,11 @@ export default async function callLLMWithHistory(history, fullChatHistory, toolR
    {"tool": "list_tables", "arguments": {}},
    {"tool": "describe_table", "arguments": {"table_name": "customers"}},
    {"tool": "read_query", "arguments": {"query": "SELECT * FROM customers LIMIT 10"}}
+   {"tool": "create_spreadsheet", "arguments": {
+     "filename": "report.xlsx",
+     "columns": ["Name", "Age"],
+     "rows": [["Alice", 30], ["Bob", 25]]
+   }}
 
    As a smart and efficient assistant, you always research table names and schemas before writing queries in order to avoid mistakes. Any SQL you write must be in SQL Server notation, otherwise we will encounter errors.
 
