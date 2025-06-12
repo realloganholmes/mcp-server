@@ -18,7 +18,6 @@ let requestId = 1;
 
 export function sendRequestToMCP(toolCall) {
     const message = `Using tool: ${toolCall.tool} with arguments: ${JSON.stringify(toolCall.arguments)}`;
-    console.log(message);
     sendProgressToClients({ message });
 
     const request = {
